@@ -32,7 +32,7 @@ repeat wait() until game:IsLoaded()
 
 -- 🪟 Cửa sổ chính
 local Window = Fluent:CreateWindow({
-	Title = "Axver Beta =}",         -- 👈 đổi thành tên script của bạn
+	Title = "Axver Beta ",         -- 👈 đổi thành tên script của bạn
 	SubTitle = "beta",              -- 👈 đổi mô tả phụ
 	TabWidth = 157,
 	Size = UDim2.fromOffset(450, 300),
@@ -44,11 +44,11 @@ local Window = Fluent:CreateWindow({
 -- 📑 Các tab (mục chính)
 local Tabs = {
 	Main0 = Window:AddTab({ Title = "Main link" }),  -- 👈 đổi tên tab 1
-	Main1 = Window:AddTab({ Title = "grow a gaden 🌱🌴🌵🌲" }),  -- 👈 đổi tên tab 2
-	Main2 = Window:AddTab({ Title = "bran rót💩" }),     -- 👈 đổi tên tab 3
-	Main3 = Window:AddTab({ Title = "99 đêm🥷" }),        -- 👈 đổi tên tab 4
+	Main1 = Window:AddTab({ Title = "grow a gaden 🌱" }),  -- 👈 đổi tên tab 2
+	Main2 = Window:AddTab({ Title = "Steal a brainrot🧠" }),     -- 👈 đổi tên tab 3
+	Main3 = Window:AddTab({ Title = "99 đêm🌲" }),        -- 👈 đổi tên tab 4
 	Main4 = Window:AddTab({ Title = "blox fruit🍎" }),    -- 👈 đổi tên tab 5
-	Main5 = Window:AddTab({ Title = "plan vs branro🌲🐘t" }) -- 👈 đổi tên tab 6
+	Main5 = Window:AddTab({ Title = "Plant Vs brainrot🧠🌱  }) -- 👈 đổi tên tab 6
 }
 
 ------------------------------------------------
@@ -58,15 +58,15 @@ Tabs.Main0:AddButton({
 	Title = "Tiktok axver)",              -- 👈 tên nút
 	Description = "Axver",-- 👈 mô tả nút
 	Callback = function()
-		setclipboard("https://www.tiktok.com/@jannie3342?_t=ZS-90QsJQ5j0NO&_r=1")  -- 👈 link sao chép
+		setclipboard("tiktok.com/@axver.hub")  -- 👈 link sao chép
 	end
 })
 
 Tabs.Main0:AddButton({
-	Title = "tik",
-	Description = "làm chơi thui",
+	Title = "link tiktok axver hub",
+	Description = "nhớ fl nha",
 	Callback = function()
-		setclipboard("https://www.tiktok.com/@b.yt03?_t=ZS-90QsHokNlwN&_r=1")     -- 👈 link khác
+		setclipboard("tiktok.com/@axver.hub")     -- 👈 link khác
 	end
 })
 
@@ -74,7 +74,7 @@ Tabs.Main0:AddButton({
 	Title = "tiktok",
 	Description = "fl tiktok để biết thêm nhiều script",
 	Callback = function()
-		setclipboard("https://www.tiktok.com/@b.yt03?_t=ZS-90QsHmSjaiu&_r=1")
+		setclipboard("tiktok.com/@axver.hub")
 	end
 })
 
@@ -82,13 +82,24 @@ Tabs.Main0:AddButton({
 -- TAB 2: Ví dụ thêm script
 ------------------------------------------------
 Tabs.Main1:AddButton({
-	Title = "speed hub🌱",                             -- 👈 tên nút hiển thị
-	Description = "script này ngon á đủ chức năng cả😃",-- 👈 mô tả
+	Title = "speed hub💨",                             -- 👈 tên nút hiển thị
+	Description = "get key",-- 👈 mô tả
 	Callback = function()
 		local Settings = {
 			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
 			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
 		}
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))() -- 👈 link script tải
+	end
+})
+Tabs.Main1:AddButton({
+	Title = "Nat hub",                             -- 👈 tên nút hiển thị
+	Description = "get key",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ScriptsHubsIds/NatHub/refs/heads/main/Loader.lua"))() -- 👈 link script tải
 	end
 })

@@ -129,7 +129,7 @@ repeat wait() until game:IsLoaded()
 
 -- 🪟 Cửa sổ chính
 local Window = Fluent:CreateWindow({
-	Title = "Axver Beta =}",         -- 👈 đổi thành tên script của bạn
+	Title = "Axver Beta ",         -- 👈 đổi thành tên script của bạn
 	SubTitle = "beta",              -- 👈 đổi mô tả phụ
 	TabWidth = 157,
 	Size = UDim2.fromOffset(450, 300),
@@ -211,5 +211,65 @@ Tabs.Main1:AddButton({
 			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
 		}
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/vdawng/Nolag/refs/heads/main/Nolagscript"))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main1:AddButton({
+	Title = "Beecon hub🐝",                             -- 👈 tên nút hiển thị
+	Description = "get key ",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/BaconBossScript/BeeconHub/main/BeeconHub"))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main1:AddButton({
+	Title = "Thundez⚡",                             -- 👈 tên nút hiển thị
+	Description = "get key ",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main2:AddButton({
+	Title = "Zzzz hub💤",                             -- 👈 tên nút hiển thị
+	Description = "no key ",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/zzzhubv2/autodesync/refs/heads/main/loader"))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main2:AddButton({
+	Title = "Apex hub",                             -- 👈 tên nút hiển thị
+	Description = "get key ",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Uranus9103/apexhubpro/refs/heads/main/Steal-Brainrot-APEXHUB"))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main2:AddButton({
+	Title = "UCT Hub",                             -- 👈 tên nút hiển thị
+	Description = "no key ",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/UCT-hub/main/refs/heads/main/stealabrainrot"))() -- 👈 link script tải
 	end
 })

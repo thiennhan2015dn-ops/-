@@ -92,14 +92,27 @@ Tabs.Main1:AddButton({
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))() -- 👈 link script tải
 	end
 })
+
 Tabs.Main1:AddButton({
-	Title = "Nat hub",                             -- 👈 tên nút hiển thị
+	Title = "Nat hub🟦",                             -- 👈 tên nút hiển thị
 	Description = "get key",-- 👈 mô tả
 	Callback = function()
 		local Settings = {
 			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
 			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
 		}
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ScriptsHubsIds/NatHub/refs/heads/main/Loader.lua"))() -- 👈 link script tải
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))() -- 👈 link script tải
+	end
+})
+
+Tabs.Main1:AddButton({
+	Title = "No-Lag",                             -- 👈 tên nút hiển thị
+	Description = "get key or no key",-- 👈 mô tả
+	Callback = function()
+		local Settings = {
+			JoinTeam = "Pirates";   -- 👈 team mặc định: Pirates hoặc Marines
+			Translator = true;      -- 👈 bật dịch sang tiếng Việt nếu có
+		}
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/vdawng/Nolag/refs/heads/main/Nolagscript"))() -- 👈 link script tải
 	end
 })

@@ -1,0 +1,348 @@
+loadstring([[
+--========================================
+-- UI PRO + SESSION SAVE + PRESET MANAGER
+--========================================
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+-- ===== SESSION MEMORY =====
+getgenv().UI_PRO_SESSION = getgenv().UI_PRO_SESSION or {
+    speed = 18,
+    activeSlot = 1,
+    autoReturn = false,
+    saves = {nil,nil,nil},
+    preset = "A",
+    presets = {
+        A = nil, B = nil, C = nil
+    }
+}
+local SESSION = getgenv().UI_PRO_SESSION
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local lp = Players.LocalPlayer
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- CONFIG
+local SPEED = SESSION.speed
+local MIN_DIST = 10
+local AUTO_DIST = 40
+
+-- STATE
+local saves = SESSION.saves
+local activeSlot = SESSION.activeSlot
+local autoReturn = SESSION.autoReturn
+local activeTween, returning = nil, false
+local startPos, totalDist = nil, 0
+local currentPreset = SESSION.preset or "A"
+
+-- CLEAN
+pcall(function() game.CoreGui.UIProPreset:Destroy() end)
+
+-- GUI ROOT
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "UIProPreset"
+
+-- FLOAT TOGGLE
+local float = Instance.new("TextButton", gui)
+float.Size = UDim2.new(0,52,0,52)
+float.Position = UDim2.new(0.02,0,0.6,0)
+float.Text = "VIP"
+float.TextScaled = true
+float.Font = Enum.Font.GothamBlack
+float.BackgroundColor3 = Color3.fromRGB(0,170,255)
+float.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", float).CornerRadius = UDim.new(1,0)
+
+-- MAIN
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,380,0,330)
+main.Position = UDim2.new(0.12,0,0.28,0)
+main.BackgroundColor3 = Color3.fromRGB(18,18,18)
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,16)
+
+-- HEADER
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(0.6,0,0,48)
+title.Position = UDim2.new(0.04,0,0,0)
+title.Text = "UI PRO • Preset Manager"
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.TextXAlignment = Left
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+
+local chip = Instance.new("TextLabel", main)
+chip.Size = UDim2.new(0,140,0,26)
+chip.Position = UDim2.new(1,-160,0,11)
+chip.Text = "IDLE • PRESET "..currentPreset
+chip.Font = Enum.Font.GothamBold
+chip.TextScaled = true
+chip.BackgroundColor3 = Color3.fromRGB(60,60,60)
+chip.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", chip).CornerRadius = UDim.new(1,0)
+local function setChip(t,c)
+    chip.Text = t.." • PRESET "..currentPreset
+    chip.BackgroundColor3 = c
+end
+
+-- TABS
+local tabs = Instance.new("Frame", main)
+tabs.Size = UDim2.new(1,0,0,36)
+tabs.Position = UDim2.new(0,0,0,48)
+tabs.BackgroundTransparency = 1
+local function tab(txt,x)
+    local b=Instance.new("TextButton",tabs)
+    b.Size=UDim2.new(0.28,0,1,0)
+    b.Position=UDim2.new(x,0,0,0)
+    b.Text=txt
+    b.Font=Enum.Font.GothamBold
+    b.TextScaled=true
+    b.BackgroundColor3=Color3.fromRGB(40,40,40)
+    b.TextColor3=Color3.new(1,1,1)
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
+    return b
+end
+local tHome=tab("Home",0.04)
+local tTP=tab("Teleport",0.36)
+local tSet=tab("Settings",0.68)
+
+local pages={}
+for _,n in ipairs({"Home","Teleport","Settings"}) do
+    local p=Instance.new("Frame",main)
+    p.Name=n; p.Size=UDim2.new(1,0,1,-84)
+    p.Position=UDim2.new(0,0,0,84)
+    p.BackgroundTransparency=1
+    p.Visible=false
+    pages[n]=p
+end
+pages.Home.Visible=true
+local function show(n) for k,v in pairs(pages) do v.Visible=(k==n) end end
+tHome.MouseButton1Click:Connect(function() show("Home") end)
+tTP.MouseButton1Click:Connect(function() show("Teleport") end)
+tSet.MouseButton1Click:Connect(function() show("Settings") end)
+
+-- HOME: PROGRESS
+local barBg=Instance.new("Frame",pages.Home)
+barBg.Size=UDim2.new(0.9,0,0,10)
+barBg.Position=UDim2.new(0.05,0,0.12,0)
+barBg.BackgroundColor3=Color3.fromRGB(50,50,50)
+Instance.new("UICorner",barBg).CornerRadius=UDim.new(1,0)
+local bar=Instance.new("Frame",barBg)
+bar.Size=UDim2.new(0,0,1,0)
+bar.BackgroundColor3=Color3.fromRGB(0,170,255)
+Instance.new("UICorner",bar).CornerRadius=UDim.new(1,0)
+local pct=Instance.new("TextLabel",pages.Home)
+pct.Size=UDim2.new(0.9,0,0,28)
+pct.Position=UDim2.new(0.05,0,0.18,0)
+pct.Text="0%"
+pct.Font=Enum.Font.GothamBlack
+pct.TextScaled=true
+pct.TextColor3=Color3.new(1,1,1)
+pct.BackgroundTransparency=1
+
+-- TELEPORT: SLOTS
+local function slot(i,y)
+    local b=Instance.new("TextButton",pages.Teleport)
+    b.Size=UDim2.new(0.9,0,0,40)
+    b.Position=UDim2.new(0.05,0,0,y)
+    b.Text=("SAVE SLOT %d%s"):format(i, i==activeSlot and " (ACTIVE)" or "")
+    b.Font=Enum.Font.GothamBold
+    b.TextScaled=true
+    b.BackgroundColor3=Color3.fromRGB(40,40,40)
+    b.TextColor3=Color3.new(1,1,1)
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,12)
+    return b
+end
+local s1,s2,s3=slot(1,0.08),slot(2,0.26),slot(3,0.44)
+local go=Instance.new("TextButton",pages.Teleport)
+go.Size=UDim2.new(0.9,0,0,40)
+go.Position=UDim2.new(0.05,0,0.68)
+go.Text=("START RETURN (SLOT %d)"):format(activeSlot)
+go.Font=Enum.Font.GothamBlack
+go.TextScaled=true
+go.BackgroundColor3=Color3.fromRGB(0,170,255)
+go.TextColor3=Color3.new(1,1,1)
+Instance.new("UICorner",go).CornerRadius=UDim.new(0,12)
+
+local function refreshSlots()
+    s1.Text=("SAVE SLOT 1%s"):format(activeSlot==1 and " (ACTIVE)" or "")
+    s2.Text=("SAVE SLOT 2%s"):format(activeSlot==2 and " (ACTIVE)" or "")
+    s3.Text=("SAVE SLOT 3%s"):format(activeSlot==3 and " (ACTIVE)" or "")
+    go.Text=("START RETURN (SLOT %d)"):format(activeSlot)
+end
+local function saveSlot(i)
+    saves[i]=hrp.CFrame
+    SESSION.saves=saves
+    activeSlot=i; SESSION.activeSlot=i
+    setChip("SAVED SLOT "..i, Color3.fromRGB(0,170,255))
+    refreshSlots()
+end
+s1.MouseButton1Click:Connect(function() saveSlot(1) end)
+s2.MouseButton1Click:Connect(function() saveSlot(2) end)
+s3.MouseButton1Click:Connect(function() saveSlot(3) end)
+
+-- SETTINGS: SPEED + AUTO + PRESETS
+local speedLbl=Instance.new("TextLabel",pages.Settings)
+speedLbl.Size=UDim2.new(0.9,0,0,26)
+speedLbl.Position=UDim2.new(0.05,0,0.04,0)
+speedLbl.Text="SPEED: "..SPEED
+speedLbl.Font=Enum.Font.GothamBold
+speedLbl.TextScaled=true
+speedLbl.TextColor3=Color3.new(1,1,1)
+speedLbl.BackgroundTransparency=1
+
+local sb=Instance.new("Frame",pages.Settings)
+sb.Size=UDim2.new(0.9,0,0,8)
+sb.Position=UDim2.new(0.05,0,0.14,0)
+sb.BackgroundColor3=Color3.fromRGB(50,50,50)
+Instance.new("UICorner",sb).CornerRadius=UDim.new(1,0)
+local knob=Instance.new("Frame",sb)
+knob.Size=UDim2.new(0,14,0,14)
+knob.Position=UDim2.new((SPEED-8)/32,-7,-0.4,0)
+knob.BackgroundColor3=Color3.fromRGB(0,170,255)
+Instance.new("UICorner",knob).CornerRadius=UDim.new(1,0)
+
+local auto=Instance.new("TextButton",pages.Settings)
+auto.Size=UDim2.new(0.9,0,0,36)
+auto.Position=UDim2.new(0.05,0,0.26,0)
+auto.Text=autoReturn and "AUTO RETURN: ON" or "AUTO RETURN: OFF"
+auto.Font=Enum.Font.GothamBold
+auto.TextScaled=true
+auto.BackgroundColor3=Color3.fromRGB(40,40,40)
+auto.TextColor3=Color3.new(1,1,1)
+Instance.new("UICorner",auto).CornerRadius=UDim.new(0,12)
+
+-- PRESET BUTTONS
+local function pbtn(txt,y)
+    local b=Instance.new("TextButton",pages.Settings)
+    b.Size=UDim2.new(0.28,0,0,36)
+    b.Position=UDim2.new(y,0,0.38,0)
+    b.Text=txt
+    b.Font=Enum.Font.GothamBold
+    b.TextScaled=true
+    b.BackgroundColor3=Color3.fromRGB(40,40,40)
+    b.TextColor3=Color3.new(1,1,1)
+    Instance.new("UICorner",b).CornerRadius=UDim.new(0,10)
+    return b
+end
+local pA=pbtn("PRESET A",0.05)
+local pB=pbtn("PRESET B",0.36)
+local pC=pbtn("PRESET C",0.67)
+
+local saveP=Instance.new("TextButton",pages.Settings)
+saveP.Size=UDim2.new(0.42,0,0,36)
+saveP.Position=UDim2.new(0.05,0,0.56,0)
+saveP.Text="SAVE PRESET"
+saveP.Font=Enum.Font.GothamBold
+saveP.TextScaled=true
+saveP.BackgroundColor3=Color3.fromRGB(0,170,255)
+saveP.TextColor3=Color3.new(1,1,1)
+Instance.new("UICorner",saveP).CornerRadius=UDim.new(0,10)
+
+local loadP=Instance.new("TextButton",pages.Settings)
+loadP.Size=UDim2.new(0.42,0,0,36)
+loadP.Position=UDim2.new(0.53,0,0.56,0)
+loadP.Text="LOAD PRESET"
+loadP.Font=Enum.Font.GothamBold
+loadP.TextScaled=true
+loadP.BackgroundColor3=Color3.fromRGB(40,40,40)
+loadP.TextColor3=Color3.new(1,1,1)
+Instance.new("UICorner",loadP).CornerRadius=UDim.new(0,10)
+
+local function snapshot()
+    return {
+        speed=SPEED,
+        activeSlot=activeSlot,
+        autoReturn=autoReturn,
+        saves={saves[1],saves[2],saves[3]}
+    }
+end
+local function apply(p)
+    if not p then return end
+    SPEED=p.speed or SPEED
+    activeSlot=p.activeSlot or activeSlot
+    autoReturn=p.autoReturn or autoReturn
+    saves={p.saves[1],p.saves[2],p.saves[3]}
+    SESSION.speed=SPEED
+    SESSION.activeSlot=activeSlot
+    SESSION.autoReturn=autoReturn
+    SESSION.saves=saves
+    speedLbl.Text="SPEED: "..SPEED
+    knob.Position=UDim2.new((SPEED-8)/32,-7,-0.4,0)
+    auto.Text=autoReturn and "AUTO RETURN: ON" or "AUTO RETURN: OFF"
+    refreshSlots()
+end
+
+local function selectPreset(k)
+    currentPreset=k; SESSION.preset=k
+    setChip("PRESET SELECTED", Color3.fromRGB(120,120,255))
+end
+pA.MouseButton1Click:Connect(function() selectPreset("A") end)
+pB.MouseButton1Click:Connect(function() selectPreset("B") end)
+pC.MouseButton1Click:Connect(function() selectPreset("C") end)
+
+saveP.MouseButton1Click:Connect(function()
+    SESSION.presets[currentPreset]=snapshot()
+    setChip("PRESET SAVED", Color3.fromRGB(0,200,0))
+end)
+loadP.MouseButton1Click:Connect(function()
+    apply(SESSION.presets[currentPreset])
+    setChip("PRESET LOADED", Color3.fromRGB(255,170,0))
+end)
+
+-- LOGIC
+local function smooth(cf)
+    if not cf then return end
+    local dist=(hrp.Position-cf.Position).Magnitude
+    if dist<MIN_DIST then
+        returning=false; bar.Size=UDim2.new(1,0,1,0); pct.Text="100%"
+        setChip("ARRIVED",Color3.fromRGB(0,200,0)); return
+    end
+    if activeTween then activeTween:Cancel() end
+    startPos=hrp.Position; totalDist=dist
+    activeTween=TweenService:Create(hrp,TweenInfo.new(dist/math.max(SPEED,1),Enum.EasingStyle.Linear),{CFrame=cf})
+    returning=true; setChip("RETURNING",Color3.fromRGB(255,170,0))
+    activeTween:Play()
+end
+go.MouseButton1Click:Connect(function() smooth(saves[activeSlot]) end)
+auto.MouseButton1Click:Connect(function()
+    autoReturn=not autoReturn
+    SESSION.autoReturn=autoReturn
+    auto.Text=autoReturn and "AUTO RETURN: ON" or "AUTO RETURN: OFF"
+end)
+
+-- SLIDER
+local dragging=false
+knob.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Touch or i.UserInputType==Enum.UserInputType.MouseButton1 then dragging=true end end)
+knob.InputEnded:Connect(function() dragging=false end)
+
+RunService.RenderStepped:Connect(function()
+    if dragging then
+        local x=math.clamp((UIS:GetMouseLocation().X-sb.AbsolutePosition.X)/sb.AbsoluteSize.X,0,1)
+        knob.Position=UDim2.new(x,-7,-0.4,0)
+        SPEED=math.floor(8+x*32)
+        SESSION.speed=SPEED
+        speedLbl.Text="SPEED: "..SPEED
+    end
+    if returning and saves[activeSlot] and startPos then
+        local cur=(hrp.Position-saves[activeSlot].Position).Magnitude
+        local done=math.clamp(1-(cur/math.max(totalDist,1)),0,1)
+        bar.Size=UDim2.new(done,0,1,0); pct.Text=math.floor(done*100).."%"
+    end
+    if autoReturn and saves[activeSlot] and not returning then
+        if (hrp.Position-saves[activeSlot].Position).Magnitude>AUTO_DIST then
+            smooth(saves[activeSlot])
+        end
+    end
+end)
+
+float.MouseButton1Click:Connect(function() main.Visible=not main.Visible end)
+lp.CharacterAdded:Connect(function(c) char=c; hrp=char:WaitForChild("HumanoidRootPart") end)
+refreshSlots()
+print("✅ UI PRO + PRESET MANAGER LOADED")
+]])()
